@@ -138,7 +138,7 @@
                                     <artifactId>datamapper</artifactId>
                                     <version>1.0</version>
                                     <type>jar</type>
-                                    <overWrite>false</overWrite>
+                                    <overWrite>true</overWrite>
                                     <outputDirectory>target/connector/dependencies</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

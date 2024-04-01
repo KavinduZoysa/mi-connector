@@ -41,8 +41,9 @@ public class Z extends SimpleMediator {
 
         balStart(scheduler, properties, ORG_NAME, MODULE_NAME, VERSION);
         System.out.println("SSSSSSSSSSSSS");
-//        context.setProperty(RESULT, properties.get(RESULT));
-        context.setProperty(RESULT, "dfdfdfdfd");
+        context.setProperty(RESULT, properties.get(RESULT));
+        System.out.println("AAAAAAAAAAAA");
+//        context.setProperty(RESULT, "dcdcdcdc");
     }
 
     public void setFirstArgument(String value) {
@@ -70,6 +71,6 @@ public class Z extends SimpleMediator {
     }
 
     public String getPayload(SimpleMessageContext context) {
-        return "p";
+        return "p11";
     }
 }

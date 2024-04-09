@@ -1,10 +1,16 @@
 package org.wso2.carbon.module.z;
 
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import org.apache.synapse.MessageContext;
-import org.apache.synapse.mediators.AbstractMediator;
+//import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
+import io.ballerina.runtime.api.utils.StringUtils;
 
 import java.util.HashMap;
 
@@ -16,19 +22,12 @@ import static org.wso2.carbon.module.z.Constants.PAYLOAD;
 import static org.wso2.carbon.module.z.Constants.RESULT;
 import static org.wso2.carbon.module.z.Constants.SECOND_ARGUMENT;
 import static org.wso2.carbon.module.z.Constants.VERSION;
-import static io.ballerina.runtime.internal.BalRuntime.balStart;
-
-//public class Z extends SimpleMediator {
-//    @Override
-//    public void mediate(SimpleMessageContext mc) {
-//        mc.setTextPayload("Z");
-//    }
-//}
+//import static io.ballerina.runtime.internal.BalRuntime.balStart;
 
 public class Z extends SimpleMediator {
-    static Scheduler scheduler = new Scheduler(false);
-    private String firstArgument = "s2co";
-    private String secondArgument = "s1";
+//    static Scheduler scheduler = new Scheduler(false);
+    private String firstArgument = "s23co";
+    private String secondArgument = "s2";
     private String functionName = "transform_1";
 
     public void mediate(SimpleMessageContext context) {
@@ -39,11 +38,36 @@ public class Z extends SimpleMediator {
             put(FUNCTION_NAME, getFunctionName());
         }};
 
-        balStart(scheduler, properties, ORG_NAME, MODULE_NAME, VERSION);
-        System.out.println("SSSSSSSSSSSSS");
-        context.setProperty(RESULT, properties.get(RESULT));
-        System.out.println("AAAAAAAAAAAA");
-//        context.setProperty(RESULT, "dcdcdcdc");
+        Callback returnCallback = new Callback() {
+            public void notifySuccess(Object result) {
+                System.out.println("asasasasa");
+                System.out.println(result);
+                context.setProperty(RESULT, result);
+            }
+
+            public void notifyFailure(BError result) {
+                System.out.println("fgfgfgfgfg");
+                System.out.println(result);
+                context.setProperty(RESULT, result);
+            }
+        };
+
+        System.out.println("hhhhhhhh");
+        Module module = new Module(ORG_NAME, MODULE_NAME, "0");
+        Runtime rt = Runtime.from(module);
+        Object[] args = new Object[2];
+
+        args[0] = StringUtils.fromString(firstArgument);
+        args[1] = StringUtils.fromString(secondArgument);
+        rt.init();
+        rt.start();
+        rt.invokeMethodAsync(functionName, returnCallback, args);
+        try { // test this
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("rrrrrrr");
     }
 
     public void setFirstArgument(String value) {
@@ -72,5 +96,15 @@ public class Z extends SimpleMediator {
 
     public String getPayload(SimpleMessageContext context) {
         return "p11";
+    }
+
+    private static Object[] buildArguments(Object... arguments) {
+        Object[] args = new Object[arguments.length * 2+2];
+        for (int i = 0; i < arguments.length; i++) {
+            args[i * 2+2] = new BmpStringValue(arguments[i].toString()) ;
+            args[i * 2 + 3] = true;
+        }
+
+        return args;
     }
 }
